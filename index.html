@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f7f4" />
+  <meta name="description" content="Fina — личные финансы: доходы, расходы, счета, цели и анализ направлений." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Fina" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Fina — Финансы</title>
+  <style>
+    :root{
+      --bg:#f7f7f4;
+      --surface:#ffffff;
+      --surface-2:#f4f4f5;
+      --surface-3:#e4e4e7;
+      --text:#09090b;
+      --muted:#71717a;
+      --muted-2:#a1a1aa;
+      --border:#e4e4e7;
+      --black:#09090b;
+      --white:#ffffff;
+      --green:#059669;
+      --green-bg:#ecfdf5;
+      --red:#e11d48;
+      --red-bg:#fff1f2;
+      --blue:#2563eb;
+      --blue-bg:#eff6ff;
+      --violet:#7c3aed;
+      --violet-bg:#f5f3ff;
+      --amber:#d97706;
+      --amber-bg:#fffbeb;
+      --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 28px rgba(0,0,0,.06);
+      --shadow-lg:0 18px 50px rgba(0,0,0,.15);
+      --radius:24px;
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+      --safe-top:env(safe-area-inset-top,0px);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;-webkit-text-size-adjust:100%}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -webkit-tap-highlight-color:transparent;
+    }
+    button,input,select{font:inherit;color:inherit}
+    button{border:0;background:none;cursor:pointer}
+    input,select{border:0;outline:0}
+    .app{max-width:480px;margin:0 auto;min-height:100vh;padding:calc(14px + var(--safe-top)) 16px calc(98px + var(--safe-bottom));}
+    .header{position:sticky;top:0;z-index:20;margin:calc(-14px - var(--safe-top)) -16px 0;padding:calc(14px + var(--safe-top)) 16px 12px;background:rgba(247,247,244,.92);backdrop-filter:blur(18px)}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted-2)}
+    h1{font-size:28px;line-height:1.05;letter-spacing:-.03em;margin-top:4px}
+    .actions{display:flex;gap:8px}
+    .icon-btn{width:44px;height:44px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow);font-size:19px;display:flex;align-items:center;justify-content:center}
+    .tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:14px}
+    .tab{min-height:50px;border-radius:18px;background:var(--surface-2);color:#52525b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:800}
+    .tab .emoji{font-size:16px;line-height:1}
+    .tab.active{background:var(--black);color:var(--white)}
+    main{padding-top:14px}
+    .grid{display:grid;gap:12px}
+    .grid-2{grid-template-columns:1fr 1fr}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+    .card.dark{background:var(--black);border-color:var(--black);color:var(--white)}
+    .card.green{background:var(--green-bg);border-color:#d1fae5;color:#064e3b}
+    .card.red{background:var(--red-bg);border-color:#ffe4e6;color:#881337}
+    .card.blue{background:var(--blue-bg);border-color:#dbeafe;color:#1e3a8a}
+    .metric{display:flex;justify-content:space-between;gap:10px}
+    .metric .label{font-size:12px;font-weight:700;color:var(--muted)}
+    .metric.dark .label{color:#a1a1aa}
+    .metric .value{font-size:24px;font-weight:900;letter-spacing:-.03em;margin-top:4px;line-height:1.05}
+    .metric .sub{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.25}
+    .metric.dark .sub{color:#a1a1aa}
+    .metric-icon{min-width:34px;height:34px;border-radius:14px;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;font-size:19px}
+    .dark .metric-icon{background:rgba(255,255,255,.1)}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .section-title-left{display:flex;align-items:center;gap:9px}
+    .round-icon{width:38px;height:38px;border-radius:15px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:17px}
+    h2{font-size:16px;letter-spacing:-.01em}
+    .muted{color:var(--muted)}
+    .tiny{font-size:12px}
+    .list{display:grid;gap:8px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:18px;background:#fafafa;padding:12px}
+    .row-left{display:flex;align-items:center;gap:11px;min-width:0}
+    .row-icon{width:42px;height:42px;border-radius:16px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .row-title{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .row-sub{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .row-amount{font-size:14px;font-weight:900;white-space:nowrap;text-align:right}
+    .income{color:var(--green)}
+    .expense{color:var(--red)}
+    .bar{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+    .bar-fill{height:100%;background:var(--black);border-radius:999px;transition:width .2s}
+    .budget-row{display:grid;gap:7px}
+    .budget-head{display:flex;justify-content:space-between;font-size:14px}
+    .search{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+    .search input{background:transparent;width:100%;font-size:14px}
+    .switches{display:flex;gap:8px;margin-bottom:12px}
+    .pill{border-radius:999px;padding:9px 14px;background:var(--surface-2);font-size:14px;font-weight:800;color:#52525b}
+    .pill.active{background:var(--black);color:var(--white)}
+    .primary{width:100%;height:48px;border-radius:18px;background:var(--black);color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;gap:8px}
+    .secondary{height:40px;border-radius:999px;background:var(--surface-2);padding:0 14px;font-size:13px;font-weight:800;color:#52525b}
+    .bottom-nav{position:fixed;left:50%;bottom:calc(14px + var(--safe-bottom));transform:translateX(-50%);z-index:30;width:calc(100% - 32px);max-width:448px;background:rgba(255,255,255,.92);border:1px solid var(--border);border-radius:999px;padding:8px;box-shadow:var(--shadow-lg);backdrop-filter:blur(18px)}
+    .bottom-nav-inner{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+    .bottom-btn{height:48px;border-radius:999px;font-size:19px;color:#71717a;display:flex;align-items:center;justify-content:center}
+    .bottom-btn.active{background:var(--black);color:#fff}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:50;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px)}
+    .modal-bg.open{display:flex}
+    .modal{width:100%;max-width:480px;background:var(--bg);border-radius:28px 28px 0 0;padding:18px 16px calc(18px + var(--safe-bottom));max-height:92vh;overflow:auto}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .modal h3{font-size:22px;letter-spacing:-.02em}
+    .close{width:38px;height:38px;border-radius:50%;background:var(--surface-2);font-size:20px}
+    .field{display:grid;gap:6px;margin-top:12px}
+    .field label{font-size:12px;font-weight:800;color:var(--muted)}
+    .field input,.field select{height:46px;border-radius:16px;background:var(--surface);border:1px solid var(--border);padding:0 13px;width:100%}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .toast{position:fixed;left:50%;bottom:calc(86px + var(--safe-bottom));transform:translateX(-50%) translateY(20px);background:var(--black);color:#fff;border-radius:999px;padding:11px 16px;font-size:14px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:80;box-shadow:var(--shadow-lg)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .hidden{display:none!important}
+    .data-buttons{display:flex;flex-wrap:wrap;gap:8px}
+    .danger{color:var(--red)}
+    .note{font-size:12px;color:var(--muted);line-height:1.35}
+    @media(max-width:370px){
+      .app{padding-left:12px;padding-right:12px}
+      .header{margin-left:-12px;margin-right:-12px;padding-left:12px;padding-right:12px}
+      .tab{font-size:10px}
+      .metric .value{font-size:21px}
+      .grid-2{gap:9px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="top">
+        <div>
+          <div class="eyebrow">Fina Owner</div>
+          <h1>Финансы</h1>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" id="voiceBtn" title="Голосовой ввод">🎙️</button>
+          <button class="icon-btn" id="photoBtn" title="Фото чека">📷</button>
+        </div>
+      </div>
+      <div class="tabs" id="topTabs"></div>
+    </header>
+    <main id="view"></main>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner" id="bottomTabs"></div>
+  </nav>
+
+  <div class="modal-bg" id="txModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Новая операция</h3>
+        <button class="close" id="closeModal">×</button>
+      </div>
+      <div class="switches">
+        <button class="pill active" data-type="expense">Расход</button>
+        <button class="pill" data-type="income">Доход</button>
+      </div>
+      <div class="field">
+        <label>Сумма</label>
+        <input id="txAmount" inputmode="decimal" placeholder="Например 15000" />
+      </div>
+      <div class="field">
+        <label>Название</label>
+        <input id="txTitle" placeholder="Например консультация / дом / реклама" />
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Дата</label>
+          <input id="txDate" type="date" />
+        </div>
+        <div class="field">
+          <label>Счёт</label>
+          <select id="txAccount"></select>
+        </div>
+      </div>
+      <div class="field" id="sourceField">
+        <label>Источник дохода</label>
+        <select id="txSource"></select>
+      </div>
+      <div class="field">
+        <label>Направление</label>
+        <select id="txDirection"></select>
+      </div>
+      <div class="field">
+        <label>Категория</label>
+        <input id="txCategory" placeholder="Например семья, реклама, обучение" />
+      </div>
+      <button class="primary" id="saveTx" style="margin-top:16px;">Сохранить</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = "fina_owner_state_v1";
+
+  const defaultState = {
+    tab:"today",
+    txType:"expense",
+    accounts:[
+      { id: "card", name: "Основная карта", type: "Карта", icon: "💳", balance: 640000, color: "#2563eb" },
+      { id: "cash", name: "Наличные", type: "Наличные", icon: "💵", balance: 85000, color: "#10b981" },
+      { id: "reserve", name: "Резерв", type: "Накопления", icon: "🏦", balance: 600000, color: "#8b5cf6" },
+      { id: "invest", name: "Инвестиции", type: "Капитал", icon: "📈", balance: 1075000, color: "#09090b" }
+    ],
+    incomeSources:[
+      { id: "berbena", name: "Berbena", icon: "🏪" },
+      { id: "berbena-pro", name: "Berbena.pro", icon: "🌐" },
+      { id: "consulting", name: "Консалтинг", icon: "💼" },
+      { id: "info", name: "Инфопродукты", icon: "📚" },
+      { id: "invest", name: "Инвестиции", icon: "📈" },
+      { id: "other", name: "Прочее", icon: "📦" }
+    ],
+    directions:[
+      { id: "personal", name: "Личное", icon: "👤" },
+      { id: "family", name: "Семья", icon: "👨‍👩‍👧" },
+      { id: "home", name: "Дом", icon: "🏠" },
+      { id: "berbena", name: "Berbena", icon: "🏪" },
+      { id: "pro", name: "Berbena.pro", icon: "🌐" },
+      { id: "consulting", name: "Консалтинг", icon: "💼" },
+      { id: "education", name: "Обучение", icon: "🎓" },
+      { id: "invest", name: "Инвестиции", icon: "📈" }
+    ],
+    goals:[
+      { id: "g1", name: "Резерв 6 месяцев", current: 600000, target: 1200000, priority: "Главная", deadline: "2026-09-01" },
+      { id: "g2", name: "Запуск Fina Owner", current: 90000, target: 250000, priority: "Рост", deadline: "2026-06-15" },
+      { id: "g3", name: "Инвестиционный капитал", current: 1075000, target: 3000000, priority: "Капитал", deadline: "2027-04-01" }
+    ],
+    recurring:[
+      { id: "r1", title: "Подписки и сервисы", amount: 35000, date: "5 мая", type: "Обязательный" },
+      { id: "r2", title: "Обучение / инструменты", amount: 25000, date: "12 мая", type: "Развитие" },
+      { id: "r3", title: "Резерв", amount: 120000, date: "20 мая", type: "Капитал" }
+    ],
+    budgets:[
+      { name: "Семья", used: 82000, limit: 160000 },
+      { name: "Обучение", used: 25000, limit: 70000 },
+      { name: "Berbena.pro", used: 45000, limit: 90000 },
+      { name: "Сервисы", used: 35000, limit: 45000 }
+    ],
+    transactions:[
+      { id: "t1", type: "income", amount: 300000, title: "Выплата собственнику", date: "2026-04-28", accountId:"card", sourceId: "berbena", directionId: "personal", category: "Доход от компании" },
+      { id: "t2", type: "income", amount: 250000, title: "Консалтинг", date: "2026-04-26", accountId:"card", sourceId: "consulting", directionId: "consulting", category: "Консалтинг" },
+      { id: "t3", type: "expense", amount: 82000, title: "Дом и семья", date: "2026-04-25", accountId:"card", directionId: "family", category: "Семья" },
+      { id: "t4", type: "expense", amount: 25000, title: "Обучение / материалы", date: "2026-04-24", accountId:"card", directionId: "education", category: "Обучение" },
+      { id: "t5", type: "expense", amount: 45000, title: "Тест рекламы", date: "2026-04-22", accountId:"card", directionId: "pro", category: "Реклама" },
+      { id: "t6", type: "income", amount: 90000, title: "Продажи инфопродуктов", date: "2026-04-20", accountId:"card", sourceId: "info", directionId: "pro", category: "Инфопродукты" },
+      { id: "t7", type: "expense", amount: 120000, title: "Перевод в резерв", date: "2026-04-18", accountId:"card", directionId: "invest", category: "Накопления", goalId: "g1" },
+      { id: "t8", type: "expense", amount: 35000, title: "Подписки и сервисы", date: "2026-04-15", accountId:"card", directionId: "consulting", category: "Сервисы", recurring: true }
+    ]
+  };
+
+  const nav = [
+    { id:"today", label:"Главная", icon:"🏠" },
+    { id:"operations", label:"Операции", icon:"🧾" },
+    { id:"accounts", label:"Счета", icon:"💳" },
+    { id:"goals", label:"Цели", icon:"🎯" },
+    { id:"analytics", label:"Анализ", icon:"📊" }
+  ];
+
+  let state = load();
+  let query = "";
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return structuredClone(defaultState);
+      const parsed = JSON.parse(raw);
+      return {...structuredClone(defaultState), ...parsed};
+    }catch(e){
+      return structuredClone(defaultState);
+    }
+  }
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function fmt(n){
+    return new Intl.NumberFormat("ru-RU",{style:"currency",currency:"RUB",maximumFractionDigits:0}).format(Number(n || 0));
+  }
+
+  function num(v){
+    return Number(String(v || "").replace(/\s/g,"").replace(",", ".")) || 0;
+  }
+
+  function uid(){
+    return "id_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  function toast(msg){
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast.t);
+    toast.t = setTimeout(()=>el.classList.remove("show"), 2200);
+  }
+
+  function find(arr,id){ return arr.find(x=>x.id===id); }
+
+  function sumTx(predicate){
+    return state.transactions.filter(predicate).reduce((acc,t)=>acc+Number(t.amount || 0),0);
+  }
+
+  function accountBalance(acc){
+    let balance = Number(acc.balance || 0);
+    state.transactions.forEach(t=>{
+      if(t.accountId !== acc.id) return;
+      if(t.type === "income") balance += Number(t.amount || 0);
+      if(t.type === "expense") balance -= Number(t.amount || 0);
+    });
+    return balance;
+  }
+
+  function totals(){
+    const balance = state.accounts.reduce((acc,a)=>acc+accountBalance(a),0);
+    const income = sumTx(t=>t.type==="income");
+    const expense = sumTx(t=>t.type==="expense");
+    const reserveAcc = state.accounts.find(a=>a.id==="reserve");
+    const reserve = reserveAcc ? accountBalance(reserveAcc) : 0;
+    const fixedToMonthEnd = state.recurring.reduce((acc,r)=>acc+Number(r.amount || 0),0);
+    const plannedGoals = 160000;
+    const free = balance - reserve - fixedToMonthEnd - plannedGoals;
+    const today = new Date();
+    const last = new Date(today.getFullYear(), today.getMonth()+1, 0);
+    const daysLeft = Math.max(1, last.getDate() - today.getDate() + 1);
+    return { balance, income, expense, net:income-expense, reserve, fixedToMonthEnd, free, daysLeft, dayLimit: Math.max(0, free / daysLeft) };
+  }
+
+  function sourceStats(){
+    return state.incomeSources.map(s=>({
+      ...s,
+      amount: sumTx(t=>t.type==="income" && t.sourceId===s.id)
+    })).filter(s=>s.amount>0).sort((a,b)=>b.amount-a.amount);
+  }
+
+  function directionStats(){
+    return state.directions.map(d=>({
+      ...d,
+      income: sumTx(t=>t.type==="income" && t.directionId===d.id),
+      expense: sumTx(t=>t.type==="expense" && t.directionId===d.id)
+    })).filter(d=>d.income || d.expense).sort((a,b)=>b.expense-a.expense);
+  }
+
+  function setTab(tab){
+    state.tab = tab;
+    save();
+    render();
+  }
+
+  function renderTabs(){
+    ["topTabs","bottomTabs"].forEach(id=>{
+      const wrap = document.getElementById(id);
+      wrap.innerHTML = nav.map(item=>{
+        const active = state.tab===item.id ? "active" : "";
+        if(id==="topTabs"){
+          return `<button class="tab ${active}" data-tab="${item.id}"><span class="emoji">${item.icon}</span><span>${item.label}</span></button>`;
+        }
+        return `<button class="bottom-btn ${active}" data-tab="${item.id}" title="${item.label}">${item.icon}</button>`;
+      }).join("");
+      wrap.querySelectorAll("[data-tab]").forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));
+    });
+  }
+
+  function metric(label,value,sub,icon,tone=""){
+    return `<div class="card ${tone}"><div class="metric ${tone}">
+      <div><div class="label">${label}</div><div class="value">${value}</div>${sub?`<div class="sub">${sub}</div>`:""}</div>
+      <div class="metric-icon">${icon}</div>
+    </div></div>`;
+  }
+
+  function sectionTitle(icon,title,right=""){
+    return `<div class="section-title"><div class="section-title-left"><div class="round-icon">${icon}</div><h2>${title}</h2></div>${right}</div>`;
+  }
+
+  function progress(value){
+    const safe = Math.max(0, Math.min(100, value || 0));
+    return `<div class="bar"><div class="bar-fill" style="width:${safe}%"></div></div>`;
+  }
+
+  function renderToday(){
+    const t = totals();
+    const sStats = sourceStats();
+    const dStats = directionStats();
+    const topSource = sStats[0]?.name || "—";
+    const topExpenseDirection = dStats.find(d=>d.expense>0)?.name || "—";
+
+    return `<div class="grid">
+      ${metric("Личный баланс", fmt(t.balance), "Карты, наличные, резерв и капитал", "💰", "dark")}
+      <div class="grid grid-2">
+        ${metric("Доход месяца", fmt(t.income), "Главный: " + topSource, "↗️", "green")}
+        ${metric("Расход месяца", fmt(t.expense), "Главное: " + topExpenseDirection, "↘️", "red")}
+      </div>
+      <div class="grid grid-2">
+        ${metric("Свободно", fmt(t.free), "После резерва и обязательств", "🛡️", "blue")}
+        ${metric("Дневной лимит", fmt(t.dayLimit), `До конца месяца: ${t.daysLeft} дн.`, "₽")}
+      </div>
+
+      <section class="card">
+        ${sectionTitle("📅","Ближайшие регулярные","<button class='secondary' id='addTxTop'>+ Операция</button>")}
+        <div class="list">
+          ${state.recurring.map(r=>`<div class="row">
+            <div class="row-left"><div class="row-icon">🔁</div><div><div class="row-title">${escapeHtml(r.title)}</div><div class="row-sub">${escapeHtml(r.date)} · ${escapeHtml(r.type)}</div></div></div>
+            <div class="row-amount">${fmt(r.amount)}</div>
+          </div>`).join("")}
+        </div>
+      </section>
+
+      <section class="card">
+        ${sectionTitle("🎚️","Бюджеты месяца")}
+        <div class="list">
+          ${state.budgets.map(b=>`<div class="budget-row">
+            <div class="budget-head"><strong>${escapeHtml(b.name)}</strong><span class="muted">${fmt(b.used)} / ${fmt(b.limit)}</span></div>
+            ${progress((b.used/b.limit)*100)}
+          </div>`).join("")}
+        </div>
+      </section>
+    </div>`;
+  }
+
+  function renderOperations(){
+    const txs = state.transactions
+      .filter(t => (`${t.title} ${t.category}`).toLowerCase().includes(query.toLowerCase()))
+      .sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+
+    return `<div class="grid">
+      <section class="card">
+        ${sectionTitle("➕","Быстро добавить")}
+        <button class="primary" id="openTx">➕ Добавить операцию</button>
+      </section>
+
+      <div class="search"><span>🔎</span><input id="searchInput" value="${escapeHtml(query)}" placeholder="Поиск по операциям" /></div>
+
+      <div class="list">
+        ${txs.map(t=>{
+          const dir = find(state.directions,t.directionId);
+          const src = find(state.incomeSources,t.sourceId);
+          const sign = t.type==="income" ? "+" : "−";
+          const cls = t.type==="income" ? "income" : "expense";
+          const icon = t.type==="income" ? "↗️" : "↘️";
+          return `<div class="card" style="padding:14px;">
+            <div class="row-left" style="width:100%;justify-content:space-between;">
+              <div class="row-left" style="min-width:0;">
+                <div class="row-icon" style="background:${t.type==="income"?"#ecfdf5":"#fff1f2"}">${icon}</div>
+                <div style="min-width:0;"><div class="row-title">${escapeHtml(t.title)}</div><div class="row-sub">${dir?.icon||""} ${escapeHtml(dir?.name||"")} ${src ? "· " + escapeHtml(src.name) : ""}</div></div>
+              </div>
+              <div style="text-align:right;"><div class="row-amount ${cls}">${sign}${fmt(t.amount)}</div><div class="row-sub">${escapeHtml(t.date)}</div></div>
+            </div>
+          </div>`;
+        }).join("") || `<div class="card"><div class="muted">Операций не найдено</div></div>`}
+      </div>
+    </div>`;
+  }
+
+  function renderAccounts(){
+    return `<div class="grid">
+      ${state.accounts.map(a=>`<div class="card">
+        <div class="row-left" style="width:100%;justify-content:space-between;">
+          <div class="row-left"><div class="row-icon" style="background:${a.color};color:#fff">${a.icon}</div><div><div class="row-title">${escapeHtml(a.name)}</div><div class="row-sub">${escapeHtml(a.type)}</div></div></div>
+          <div style="text-align:right;"><div class="row-amount">${fmt(accountBalance(a))}</div><div class="row-sub">RUB</div></div>
+        </div>
+      </div>`).join("")}
+    </div>`;
+  }
+
+  function renderGoals(){
+    return `<div class="grid">
+      ${state.goals.map(g=>`<div class="card">
+        <div class="budget-head" style="margin-bottom:10px;"><div><strong>${escapeHtml(g.name)}</strong><div class="row-sub">${escapeHtml(g.priority)} · до ${new Date(g.deadline).toLocaleDateString("ru-RU")}</div></div><span class="secondary">${Math.round((g.current/g.target)*100)}%</span></div>
+        ${progress((g.current/g.target)*100)}
+        <div class="budget-head tiny" style="margin-top:10px;"><span class="muted">${fmt(g.current)}</span><strong>${fmt(g.target)}</strong></div>
+      </div>`).join("")}
+    </div>`;
+  }
+
+  function renderAnalytics(){
+    const t = totals();
+    const sStats = sourceStats();
+    const dStats = directionStats();
+    return `<div class="grid">
+      <section class="card">
+        ${sectionTitle("↗️","Доходы по источникам")}
+        <div class="list">
+          ${sStats.map(s=>`<div class="budget-row">
+            <div class="budget-head"><span><span>${s.icon}</span> <strong>${escapeHtml(s.name)}</strong></span><strong>${fmt(s.amount)}</strong></div>
+            ${progress((s.amount/(t.income||1))*100)}
+          </div>`).join("")}
+        </div>
+      </section>
+
+      <section class="card">
+        ${sectionTitle("↘️","Направления денег")}
+        <div class="list">
+          ${dStats.map(d=>`<div class="row">
+            <div class="row-left"><div class="row-icon">${d.icon}</div><div><div class="row-title">${escapeHtml(d.name)}</div><div class="row-sub">Доход: ${fmt(d.income)}</div></div></div>
+            <div style="text-align:right;"><div class="row-amount expense">−${fmt(d.expense)}</div><div class="row-sub">чисто: ${fmt(d.income-d.expense)}</div></div>
+          </div>`).join("")}
+        </div>
+      </section>
+
+      <section class="card">
+        ${sectionTitle("💾","Данные")}
+        <p class="note" style="margin-bottom:12px;">Данные хранятся только в браузере этого устройства. Регулярно делайте JSON-бэкап.</p>
+        <div class="data-buttons">
+          <button class="secondary" id="exportJson">Экспорт JSON</button>
+          <button class="secondary" id="importJsonBtn">Импорт JSON</button>
+          <button class="secondary danger" id="resetData">Сбросить</button>
+          <input type="file" id="importJson" accept=".json,application/json" class="hidden">
+        </div>
+      </section>
+    </div>`;
+  }
+
+  function render(){
+    renderTabs();
+    const view = document.getElementById("view");
+    const map = {
+      today: renderToday,
+      operations: renderOperations,
+      accounts: renderAccounts,
+      goals: renderGoals,
+      analytics: renderAnalytics
+    };
+    view.innerHTML = (map[state.tab] || renderToday)();
+    bindViewEvents();
+  }
+
+  function bindViewEvents(){
+    const addTxTop = document.getElementById("addTxTop");
+    const openTx = document.getElementById("openTx");
+    if(addTxTop) addTxTop.onclick = openModal;
+    if(openTx) openTx.onclick = openModal;
+
+    const search = document.getElementById("searchInput");
+    if(search){
+      search.oninput = (e)=>{ query = e.target.value; renderOperationsOnly(); };
+    }
+
+    const exportBtn = document.getElementById("exportJson");
+    if(exportBtn) exportBtn.onclick = exportJSON;
+
+    const importBtn = document.getElementById("importJsonBtn");
+    const importInput = document.getElementById("importJson");
+    if(importBtn && importInput){
+      importBtn.onclick = ()=>importInput.click();
+      importInput.onchange = importJSON;
+    }
+
+    const reset = document.getElementById("resetData");
+    if(reset) reset.onclick = ()=>{
+      if(confirm("Сбросить все данные Fina на этом устройстве?")){
+        localStorage.removeItem(STORAGE_KEY);
+        state = structuredClone(defaultState);
+        query = "";
+        save();
+        render();
+        toast("Данные сброшены");
+      }
+    };
+  }
+
+  function renderOperationsOnly(){
+    if(state.tab === "operations") {
+      document.getElementById("view").innerHTML = renderOperations();
+      bindViewEvents();
+      const s = document.getElementById("searchInput");
+      if(s){ s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+    }
+  }
+
+  function openModal(){
+    document.getElementById("txModal").classList.add("open");
+    document.getElementById("txDate").value = new Date().toISOString().slice(0,10);
+    fillSelects();
+    updateTypeUI();
+    setTimeout(()=>document.getElementById("txAmount").focus(), 100);
+  }
+
+  function closeModal(){
+    document.getElementById("txModal").classList.remove("open");
+  }
+
+  function fillSelects(){
+    document.getElementById("txAccount").innerHTML = state.accounts.map(a=>`<option value="${a.id}">${a.icon} ${escapeHtml(a.name)}</option>`).join("");
+    document.getElementById("txSource").innerHTML = state.incomeSources.map(s=>`<option value="${s.id}">${s.icon} ${escapeHtml(s.name)}</option>`).join("");
+    document.getElementById("txDirection").innerHTML = state.directions.map(d=>`<option value="${d.id}">${d.icon} ${escapeHtml(d.name)}</option>`).join("");
+  }
+
+  function updateTypeUI(){
+    document.querySelectorAll(".switches .pill").forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.type === state.txType);
+    });
+    document.getElementById("sourceField").style.display = state.txType === "income" ? "grid" : "none";
+  }
+
+  function saveTransaction(){
+    const amount = num(document.getElementById("txAmount").value);
+    const title = document.getElementById("txTitle").value.trim();
+    if(!amount){ toast("Введите сумму"); return; }
+    if(!title){ toast("Введите название"); return; }
+
+    const tx = {
+      id: uid(),
+      type: state.txType,
+      amount,
+      title,
+      date: document.getElementById("txDate").value || new Date().toISOString().slice(0,10),
+      accountId: document.getElementById("txAccount").value,
+      sourceId: state.txType === "income" ? document.getElementById("txSource").value : undefined,
+      directionId: document.getElementById("txDirection").value,
+      category: document.getElementById("txCategory").value.trim() || (state.txType === "income" ? "Доход" : "Расход")
+    };
+
+    state.transactions.unshift(tx);
+    save();
+    closeModal();
+    ["txAmount","txTitle","txCategory"].forEach(id=>document.getElementById(id).value="");
+    render();
+    toast("Операция добавлена");
+  }
+
+  function exportJSON(){
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "fina-backup-" + new Date().toISOString().slice(0,10) + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    toast("Бэкап скачан");
+  }
+
+  function importJSON(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const parsed = JSON.parse(reader.result);
+        if(!parsed.transactions || !parsed.accounts) throw new Error("bad file");
+        state = {...structuredClone(defaultState), ...parsed};
+        save();
+        render();
+        toast("Данные восстановлены");
+      }catch(err){
+        toast("Неверный файл");
+      }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  document.getElementById("closeModal").onclick = closeModal;
+  document.getElementById("txModal").onclick = (e)=>{ if(e.target.id==="txModal") closeModal(); };
+  document.querySelectorAll(".switches .pill").forEach(btn=>{
+    btn.onclick = ()=>{ state.txType = btn.dataset.type; updateTypeUI(); };
+  });
+  document.getElementById("saveTx").onclick = saveTransaction;
+
+  document.getElementById("voiceBtn").onclick = ()=>toast("Голос добавим на следующем шаге");
+  document.getElementById("photoBtn").onclick = ()=>toast("Фото чека добавим на следующем шаге");
+
+  render();
+})();
+</script>
+</body>
+</html>

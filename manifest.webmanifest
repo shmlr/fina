@@ -1,0 +1,10 @@
+{
+  "name": "Fina",
+  "short_name": "Fina",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f7f7f4",
+  "theme_color": "#f7f7f4",
+  "description": "Личные финансы: доходы, расходы, счета, цели и анализ.",
+  "icons": []
+}
