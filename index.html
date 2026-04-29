@@ -139,6 +139,17 @@
     .danger{color:var(--red)}
     .note{font-size:12px;color:var(--muted);line-height:1.35}
     .empty{border-radius:18px;background:#fafafa;padding:14px;font-size:14px;color:var(--muted);line-height:1.35}
+
+    .ref-grid{display:grid;gap:8px}
+    .ref-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:18px;background:#fafafa;padding:10px 11px;min-width:0}
+    .ref-left{display:flex;align-items:center;gap:10px;min-width:0}
+    .ref-icon{width:36px;height:36px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .ref-name{font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ref-actions{display:flex;gap:6px;flex-shrink:0}
+    .mini-btn{height:32px;border-radius:999px;background:var(--surface-2);padding:0 10px;font-size:12px;font-weight:900;color:#52525b;white-space:nowrap}
+    .mini-btn.danger{color:var(--red)}
+    .ref-columns{display:grid;grid-template-columns:1fr;gap:12px}
+
     @media(max-width:380px){
       .app{padding-left:10px;padding-right:10px}
       .header{margin-left:-10px;margin-right:-10px;padding-left:10px;padding-right:10px}
@@ -217,6 +228,28 @@
     </div>
   </div>
 
+
+  <div class="modal-bg" id="refModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="refModalTitle">Справочник</h3>
+        <button class="close" id="closeRefModal">×</button>
+      </div>
+
+      <div class="field">
+        <label>Название</label>
+        <input id="refName" placeholder="Например Работа, Семья, Проекты" />
+      </div>
+
+      <div class="field">
+        <label>Иконка</label>
+        <input id="refIcon" placeholder="Например 💼" maxlength="4" />
+      </div>
+
+      <button class="primary" id="saveRef" style="margin-top:16px;">Сохранить</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
 <script>
@@ -276,6 +309,7 @@
 
   let state = load();
   let query = "";
+  let refDraft = { kind: null, id: null };
 
   function clone(o){ return JSON.parse(JSON.stringify(o)); }
 
@@ -494,6 +528,61 @@
     </div>`;
   }
 
+
+  function renderRefs(){
+    const sourceItems = state.incomeSources.map(s=>`
+      <div class="ref-item">
+        <div class="ref-left">
+          <div class="ref-icon">${s.icon || "•"}</div>
+          <div class="ref-name">${escapeHtml(s.name)}</div>
+        </div>
+        <div class="ref-actions">
+          <button class="mini-btn" data-ref-edit="source" data-id="${s.id}">Изм.</button>
+          <button class="mini-btn danger" data-ref-delete="source" data-id="${s.id}">Удал.</button>
+        </div>
+      </div>
+    `).join("");
+
+    const directionItems = state.directions.map(d=>`
+      <div class="ref-item">
+        <div class="ref-left">
+          <div class="ref-icon">${d.icon || "•"}</div>
+          <div class="ref-name">${escapeHtml(d.name)}</div>
+        </div>
+        <div class="ref-actions">
+          <button class="mini-btn" data-ref-edit="direction" data-id="${d.id}">Изм.</button>
+          <button class="mini-btn danger" data-ref-delete="direction" data-id="${d.id}">Удал.</button>
+        </div>
+      </div>
+    `).join("");
+
+    return `
+      <section class="card">
+        ${sectionTitle("⚙️","Справочники")}
+        <p class="note" style="margin-bottom:12px;">Здесь можно изменить источники дохода и направления. Источник используется только для доходов, направление — для доходов и расходов.</p>
+
+        <div class="ref-columns">
+          <div>
+            <div class="budget-head" style="margin-bottom:8px;">
+              <strong>Источники дохода</strong>
+              <button class="mini-btn" data-ref-add="source">+ Добавить</button>
+            </div>
+            <div class="ref-grid">${sourceItems}</div>
+          </div>
+
+          <div>
+            <div class="budget-head" style="margin:12px 0 8px;">
+              <strong>Направления</strong>
+              <button class="mini-btn" data-ref-add="direction">+ Добавить</button>
+            </div>
+            <div class="ref-grid">${directionItems}</div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+
   function renderAnalytics(){
     const t = totals();
     const sStats = sourceStats();
@@ -519,6 +608,8 @@
         </div>
       </section>
 
+
+      ${renderRefs()}
 
       <section class="card">
         ${sectionTitle("❔","Как пользоваться")}
@@ -567,8 +658,8 @@
             <div class="row-left">
               <div class="row-icon">5</div>
               <div>
-                <div class="row-title">Делайте бэкап</div>
-                <div class="row-sub">В разделе «Анализ» нажимайте «Экспорт JSON», чтобы сохранить копию данных.</div>
+                <div class="row-title">Изменяйте справочники и делайте бэкап</div>
+                <div class="row-sub">В разделе «Анализ» можно менять источники/направления и нажимать «Экспорт JSON» для копии данных.</div>
               </div>
             </div>
           </div>
@@ -629,6 +720,20 @@
         hardReset();
       }
     };
+
+
+    document.querySelectorAll("[data-ref-add]").forEach(btn=>{
+      btn.onclick = ()=>openRefModal(btn.dataset.refAdd);
+    });
+
+    document.querySelectorAll("[data-ref-edit]").forEach(btn=>{
+      btn.onclick = ()=>openRefModal(btn.dataset.refEdit, btn.dataset.id);
+    });
+
+    document.querySelectorAll("[data-ref-delete]").forEach(btn=>{
+      btn.onclick = ()=>deleteRefItem(btn.dataset.refDelete, btn.dataset.id);
+    });
+
   }
 
   function hardReset(){
@@ -701,6 +806,85 @@
     toast("Операция добавлена");
   }
 
+
+  function openRefModal(kind, id){
+    refDraft = { kind, id: id || null };
+    const list = kind === "source" ? state.incomeSources : state.directions;
+    const item = id ? list.find(x => x.id === id) : null;
+
+    document.getElementById("refModalTitle").textContent =
+      kind === "source"
+        ? (id ? "Изменить источник" : "Новый источник")
+        : (id ? "Изменить направление" : "Новое направление");
+
+    document.getElementById("refName").value = item ? item.name : "";
+    document.getElementById("refIcon").value = item ? item.icon : "";
+    document.getElementById("refModal").classList.add("open");
+
+    setTimeout(()=>document.getElementById("refName").focus(), 100);
+  }
+
+  function closeRefModal(){
+    document.getElementById("refModal").classList.remove("open");
+  }
+
+  function saveRefItem(){
+    const name = document.getElementById("refName").value.trim();
+    const icon = document.getElementById("refIcon").value.trim() || "•";
+
+    if(!name){
+      toast("Введите название");
+      return;
+    }
+
+    const list = refDraft.kind === "source" ? state.incomeSources : state.directions;
+
+    if(refDraft.id){
+      const item = list.find(x => x.id === refDraft.id);
+      if(item){
+        item.name = name;
+        item.icon = icon;
+      }
+    } else {
+      list.push({
+        id: uid(),
+        name,
+        icon
+      });
+    }
+
+    save();
+    closeRefModal();
+    render();
+    toast("Справочник обновлён");
+  }
+
+  function deleteRefItem(kind, id){
+    const listName = kind === "source" ? "incomeSources" : "directions";
+    const isUsed = kind === "source"
+      ? state.transactions.some(t => t.sourceId === id)
+      : state.transactions.some(t => t.directionId === id);
+
+    if(isUsed){
+      toast("Нельзя удалить: используется в операциях");
+      return;
+    }
+
+    const minCount = kind === "source" ? 1 : 1;
+    if(state[listName].length <= minCount){
+      toast("Должен остаться хотя бы один элемент");
+      return;
+    }
+
+    if(confirm("Удалить элемент справочника?")){
+      state[listName] = state[listName].filter(x => x.id !== id);
+      save();
+      render();
+      toast("Удалено");
+    }
+  }
+
+
   function exportJSON(){
     const data = JSON.stringify(state, null, 2);
     const blob = new Blob([data], {type:"application/json"});
@@ -747,6 +931,10 @@
     btn.onclick = ()=>{ state.txType = btn.dataset.type; updateTypeUI(); };
   });
   document.getElementById("saveTx").onclick = saveTransaction;
+
+  document.getElementById("closeRefModal").onclick = closeRefModal;
+  document.getElementById("refModal").onclick = (e)=>{ if(e.target.id==="refModal") closeRefModal(); };
+  document.getElementById("saveRef").onclick = saveRefItem;
 
   document.getElementById("voiceBtn").onclick = ()=>toast("Голос добавим на следующем шаге");
   document.getElementById("photoBtn").onclick = ()=>toast("Фото чека добавим на следующем шаге");
