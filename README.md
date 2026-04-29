@@ -1,27 +1,37 @@
 # Fina
 
-Личное приложение для финансов собственника.
+Личное приложение для финансов.
 
-## Как открыть через GitHub Pages
+## Файлы
 
-1. Создайте репозиторий `fina`.
-2. Загрузите файлы:
-   - `index.html`
-   - `manifest.webmanifest`
-3. Откройте `Settings → Pages`.
-4. Source: `Deploy from a branch`.
-5. Branch: `main`, folder: `/root`.
-6. После публикации откройте:
+- `index.html` — приложение
+- `favicon.png` — фавикон
+- `apple-touch-icon.png` — иконка для iPhone
+- `icon-192.png`, `icon-512.png` — иконки PWA
+- `manifest.webmanifest` — PWA-манифест
+
+## Как обновить GitHub Pages
+
+Загрузите все файлы в корень репозитория `fina`:
 
 ```text
-https://shmlr.github.io/fina/
+index.html
+manifest.webmanifest
+favicon.png
+apple-touch-icon.png
+icon-192.png
+icon-512.png
+README.md
 ```
+
+После загрузки GitHub Pages обновится автоматически.
 
 ## Важно
 
-Данные хранятся локально в браузере устройства через `localStorage`.
+В этой версии стартовые цифры обнулены.  
+Ключ хранения изменён на `fina_owner_state_v2`, чтобы старые демо-цифры из браузера не подтягивались.
 
-Регулярно делайте бэкап:
-`Анализ → Данные → Экспорт JSON`.
-
-Не загружайте реальные финансовые данные в GitHub.
+Если на iPhone всё равно видны старые цифры:
+1. Откройте вкладку `Анализ`.
+2. Нажмите `Сбросить`.
+3. Закройте и снова откройте приложение.
