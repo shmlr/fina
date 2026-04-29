@@ -221,7 +221,7 @@
         <select id="txSource"></select>
       </div>
       <div class="field">
-        <label>Направление</label>
+        <label>Сфера</label>
         <select id="txDirection"></select>
       </div>
       <div class="field">
@@ -535,6 +535,20 @@
   }
 
 
+
+  function expenseCategoryStats(){
+    const map = {};
+    state.transactions.forEach(t=>{
+      if(t.type !== "expense") return;
+      const key = t.category || "Расход";
+      map[key] = (map[key] || 0) + Number(t.amount || 0);
+    });
+    return Object.entries(map)
+      .map(([name, amount]) => ({ name, amount }))
+      .sort((a,b) => b.amount - a.amount);
+  }
+
+
   function renderRefs(){
     const sourceItems = state.incomeSources.map(s=>`
       <div class="ref-item">
@@ -565,7 +579,7 @@
     return `
       <section class="card">
         ${sectionTitle("⚙️","Справочники")}
-        <p class="note" style="margin-bottom:12px;">Здесь можно изменить источники дохода и направления. Источник используется только для доходов, направление — для доходов и расходов.</p>
+        <p class="note" style="margin-bottom:12px;">Здесь можно изменить источники дохода и сферы. Источник используется только для доходов, сфера — для доходов и расходов.</p>
 
         <div class="ref-columns">
           <div>
@@ -578,7 +592,7 @@
 
           <div>
             <div class="budget-head" style="margin:12px 0 8px;">
-              <strong>Направления</strong>
+              <strong>Сферы</strong>
               <button class="mini-btn" data-ref-add="direction">+ Добавить</button>
             </div>
             <div class="ref-grid">${directionItems}</div>
@@ -605,7 +619,17 @@
       </section>
 
       <section class="card">
-        ${sectionTitle("↘️","Направления денег")}
+        ${sectionTitle("💸","Расходы по категориям")}
+        <div class="list">
+          ${expenseCategoryStats().length ? expenseCategoryStats().map(c=>`<div class="budget-row">
+            <div class="budget-head"><span><strong>${escapeHtml(c.name)}</strong></span><strong class="expense">−${fmt(c.amount)}</strong></div>
+            ${progress((c.amount/(t.expense||1))*100)}
+          </div>`).join("") : `<div class="empty">Расходов пока нет.</div>`}
+        </div>
+      </section>
+
+      <section class="card">
+        ${sectionTitle("↘️","Доходы и расходы по сферам")}
         <div class="list">
           ${dStats.length ? dStats.map(d=>`<div class="row">
             <div class="row-left"><div class="row-icon">${d.icon}</div><div><div class="row-title">${escapeHtml(d.name)}</div><div class="row-sub">Доход: ${fmt(d.income)}</div></div></div>
@@ -644,8 +668,8 @@
             <div class="row-left">
               <div class="row-icon">3</div>
               <div>
-                <div class="row-title">Укажите направление</div>
-                <div class="row-sub">Направление отвечает на вопрос: для чего были деньги — личное, семья, дом, работа, проекты, обучение, здоровье, инвестиции.</div>
+                <div class="row-title">Укажите сфера</div>
+                <div class="row-sub">Сфера отвечает на вопрос: для чего были деньги — личное, семья, дом, работа, проекты, обучение, здоровье, инвестиции.</div>
               </div>
             </div>
           </div>
@@ -665,7 +689,7 @@
               <div class="row-icon">5</div>
               <div>
                 <div class="row-title">Изменяйте справочники и делайте бэкап</div>
-                <div class="row-sub">В разделе «Анализ» можно менять источники/направления и нажимать «Экспорт JSON» для копии данных.</div>
+                <div class="row-sub">В разделе «Анализ» можно менять источники/сферы и нажимать «Экспорт JSON» для копии данных.</div>
               </div>
             </div>
           </div>
@@ -885,7 +909,7 @@
     document.getElementById("refModalTitle").textContent =
       kind === "source"
         ? (id ? "Изменить источник" : "Новый источник")
-        : (id ? "Изменить направление" : "Новое направление");
+        : (id ? "Изменить сфера" : "Новое сфера");
 
     document.getElementById("refName").value = item ? item.name : "";
     document.getElementById("refIcon").value = item ? item.icon : "";
