@@ -156,7 +156,7 @@
     <header class="header">
       <div class="top">
         <div>
-          <div class="eyebrow">Fina Owner</div>
+          <div class="eyebrow">Fina</div>
           <h1>Финансы</h1>
         </div>
         <div class="actions">
@@ -221,8 +221,8 @@
 
 <script>
 (function(){
-  const STORAGE_KEY = "fina_owner_state_v2";
-  const OLD_KEYS = ["fina_owner_state_v1", "fina_owner_state", "fina_state"];
+  const STORAGE_KEY = "fina_state_v3";
+  const OLD_KEYS = ["fina_owner_state_v1", "fina_owner_state_v2", "fina_owner_state", "fina_state", "fina_state_v2"];
 
   const defaultState = {
     tab:"today",
@@ -234,10 +234,10 @@
       { id: "invest", name: "Инвестиции", type: "Капитал", icon: "📈", balance: 0, color: "#09090b" }
     ],
     incomeSources:[
-      { id: "berbena", name: "Berbena", icon: "🏪" },
-      { id: "berbena-pro", name: "Berbena.pro", icon: "🌐" },
-      { id: "consulting", name: "Консалтинг", icon: "💼" },
-      { id: "info", name: "Инфопродукты", icon: "📚" },
+      { id: "main", name: "Основной доход", icon: "💼" },
+      { id: "extra", name: "Доп. доход", icon: "➕" },
+      { id: "projects", name: "Проекты", icon: "🗂️" },
+      { id: "online", name: "Онлайн-доход", icon: "🌐" },
       { id: "invest", name: "Инвестиции", icon: "📈" },
       { id: "other", name: "Прочее", icon: "📦" }
     ],
@@ -245,22 +245,22 @@
       { id: "personal", name: "Личное", icon: "👤" },
       { id: "family", name: "Семья", icon: "👨‍👩‍👧" },
       { id: "home", name: "Дом", icon: "🏠" },
-      { id: "berbena", name: "Berbena", icon: "🏪" },
-      { id: "pro", name: "Berbena.pro", icon: "🌐" },
-      { id: "consulting", name: "Консалтинг", icon: "💼" },
+      { id: "main", name: "Основной доход", icon: "💼" },
+      { id: "projects", name: "Проекты", icon: "🌐" },
+      { id: "extra", name: "Доп. доход", icon: "💼" },
       { id: "education", name: "Обучение", icon: "🎓" },
       { id: "invest", name: "Инвестиции", icon: "📈" }
     ],
     goals:[
       { id: "g1", name: "Резерв", current: 0, target: 0, priority: "Главная", deadline: "" },
-      { id: "g2", name: "Запуск продукта", current: 0, target: 0, priority: "Рост", deadline: "" },
+      { id: "g2", name: "Крупная цель", current: 0, target: 0, priority: "Рост", deadline: "" },
       { id: "g3", name: "Инвестиции", current: 0, target: 0, priority: "Капитал", deadline: "" }
     ],
     recurring:[],
     budgets:[
       { name: "Семья", used: 0, limit: 0 },
       { name: "Обучение", used: 0, limit: 0 },
-      { name: "Berbena.pro", used: 0, limit: 0 },
+      { name: "Проекты", used: 0, limit: 0 },
       { name: "Сервисы", used: 0, limit: 0 }
     ],
     transactions:[]
@@ -516,6 +516,62 @@
             <div class="row-left"><div class="row-icon">${d.icon}</div><div><div class="row-title">${escapeHtml(d.name)}</div><div class="row-sub">Доход: ${fmt(d.income)}</div></div></div>
             <div style="text-align:right;"><div class="row-amount expense">−${fmt(d.expense)}</div><div class="row-sub">чисто: ${fmt(d.income-d.expense)}</div></div>
           </div>`).join("") : `<div class="empty">Аналитика появится после первых операций.</div>`}
+        </div>
+      </section>
+
+
+      <section class="card">
+        ${sectionTitle("❔","Как пользоваться")}
+        <div class="list">
+          <div class="row">
+            <div class="row-left">
+              <div class="row-icon">1</div>
+              <div>
+                <div class="row-title">Добавьте первую операцию</div>
+                <div class="row-sub">Откройте «Операции» → «Добавить операцию».</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-left">
+              <div class="row-icon">2</div>
+              <div>
+                <div class="row-title">Выберите доход или расход</div>
+                <div class="row-sub">Для дохода укажите источник: основной доход, доп. доход, проекты, онлайн-доход или инвестиции.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-left">
+              <div class="row-icon">3</div>
+              <div>
+                <div class="row-title">Укажите направление</div>
+                <div class="row-sub">Направление отвечает на вопрос: для чего были деньги — личное, семья, дом, работа, проекты, обучение, здоровье, инвестиции.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-left">
+              <div class="row-icon">4</div>
+              <div>
+                <div class="row-title">Смотрите главную сводку</div>
+                <div class="row-sub">На главной отображаются баланс, доходы, расходы, свободные деньги и дневной лимит.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="row-left">
+              <div class="row-icon">5</div>
+              <div>
+                <div class="row-title">Делайте бэкап</div>
+                <div class="row-sub">В разделе «Анализ» нажимайте «Экспорт JSON», чтобы сохранить копию данных.</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
